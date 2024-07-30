@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Notifications</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.9/signalr.min.js"></script>
+</head>
+<body>
+    <h1>Stock Notifications</h1>
+    <ul id="notifications">Aquí mostrarem les notificacions</ul>
+
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/stockHub")
+            .build();
+
+        connection.on("ReceiveNotification", (productName, stock) => {
+            const li = document.createElement("li");
+            li.textContent = `The stock of ${productName} is below the minimum quantity. Current stock: ${stock}`;
+            document.getElementById("notifications").appendChild(li);
+        });
+
+        connection.start().then(() => {
+            fetch('/api/notifyClientReady')
+                .catch(err => console.error('Error notifying server:', err));
+        }).catch(err => console.error('Error starting connection:', err));
+    </script>
+</body>
+</html>
